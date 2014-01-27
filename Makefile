@@ -1,3 +1,5 @@
+# a convenience makefile
+
 .PHONY : all
 
 all : ./build/Makefile
