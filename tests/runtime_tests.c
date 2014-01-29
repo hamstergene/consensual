@@ -1,63 +1,7 @@
 #include <consensual/runtime.h>
 #include <check.h>
 
-#include <stdlib.h>
-
-struct TestRTAllocContext
-{
-    int bytesAllocated;
-};
-
-void *
-test_rt_alloc(const void * allocContext, cns_Index size, cns_Error* err)
-{
-    if (size <= 0)
-    {
-        *err = CNS_ERR_BADARG;
-        return 0;
-    }
-
-    void * rv = malloc( sizeof(cns_Index) + size );
-    if (rv)
-    {
-        *(cns_Index*)rv = size;
-        ((struct TestRTAllocContext *)allocContext)->bytesAllocated += size;
-    }
-    *err = (rv ? CNS_OK : CNS_ERR_NOMEM);
-    return rv;
-}
-
-void
-test_rt_free(const void * allocContext, void* ptr, cns_Error* err)
-{
-    if (ptr)
-    {
-        cns_Index size = *(cns_Index*)ptr;
-        ((struct TestRTAllocContext *)allocContext)->bytesAllocated -= size;
-    }
-    free(ptr);
-    *err = CNS_OK;
-}
-
-void *
-test_rt_realloc(const void * allocContext, void* ptr, cns_Index size, cns_Error* err)
-{
-    if (size <= 0)
-    {
-        *err = CNS_ERR_BADARG;
-        return 0;
-    }
-    void * rv = realloc(ptr, sizeof(cns_Index) + size);
-    if (rv)
-    {
-        ((struct TestRTAllocContext *)allocContext)->bytesAllocated -= *(cns_Index*)ptr;
-        ((struct TestRTAllocContext *)allocContext)->bytesAllocated += size;
-        *(cns_Index*)rv = size;
-    }
-    *err = (rv ? CNS_OK : CNS_ERR_NOMEM);
-    return rv;
-}
-
+#include "alloc.h"
 
 START_TEST(test_runtime)
 {
@@ -73,6 +17,19 @@ START_TEST(test_runtime)
     ck_assert_ptr_eq( 0, cns_runtime_alloc(cns, -1) ); // test fail
     ck_assert_int_eq( CNS_ERR_BADARG, cns_lasterr(cns) );
     ck_assert_int_eq( test_rt_allocContext.bytesAllocated, x ); // ensure it did nothing
+
+    // make sure test_rt_alloc returns writable memory
+    int* ptr0 = (int*) cns_runtime_alloc(cns, sizeof(int));
+    *ptr0 = 999;
+    cns_runtime_free(cns, ptr0);
+    ck_assert_int_eq( test_rt_allocContext.bytesAllocated, x );
+
+    // make sure test_rt_realloc does the same
+    ptr0 = (int*) cns_runtime_alloc(cns, 1);
+    ptr0 = (int*) cns_runtime_realloc(cns, ptr0, sizeof(int));
+    *ptr0 = 888;
+    cns_runtime_free(cns, ptr0);
+    ck_assert_int_eq( test_rt_allocContext.bytesAllocated, x );
 
     void* ptr1 = cns_runtime_alloc(cns, 17);
     ck_assert_int_eq( CNS_OK, cns_lasterr(cns) );

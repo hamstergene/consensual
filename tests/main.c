@@ -27,6 +27,9 @@ int main()
     Suite* runtime_suite(void);
     srunner_add_suite(sr, runtime_suite());
 
+    Suite* bytes_suite(void);
+    srunner_add_suite(sr, bytes_suite());
+
     srunner_run_all(sr, CK_NORMAL);
     numFailedTests = srunner_ntests_failed(sr);
     srunner_free(sr);

@@ -4,7 +4,10 @@ project(runtests)
 
 add_executable(runtests
     src/runtime.c
+    src/bytes.c
     tests/runtime_tests.c
+    tests/bytes_tests.c
+    tests/alloc.c
     tests/main.c
     )
 
