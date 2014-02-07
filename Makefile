@@ -2,12 +2,15 @@
 BUILD_DIR := ./build/$(shell hostname)
 SOURCE_DIR := $(shell pwd)
 
-.PHONY : all
+.PHONY : all runtests
 
-all : $(BUILD_DIR)/runtests
+all : runtests
 	$(BUILD_DIR)/runtests
 
-$(BUILD_DIR)/runtests : $(BUILD_DIR)
+valgrind : runtests
+	CK_FORK=no valgrind $(BUILD_DIR)/runtests
+
+runtests : $(BUILD_DIR)
 	cd $(BUILD_DIR) && cmake $(SOURCE_DIR) && cmake --build .
 
 $(BUILD_DIR) :
