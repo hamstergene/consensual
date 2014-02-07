@@ -8,7 +8,10 @@ all : runtests
 	$(BUILD_DIR)/runtests
 
 valgrind : runtests
-	CK_FORK=no valgrind $(BUILD_DIR)/runtests
+	CK_FORK=no valgrind --dsymutil=yes $(BUILD_DIR)/runtests
+
+gmalloc : runtests
+	MallocGuardEdges=1 MallocScribble=1 MallocStackLogging=1 $(BUILD_DIR)/runtests
 
 runtests : $(BUILD_DIR)
 	cd $(BUILD_DIR) && cmake $(SOURCE_DIR) && cmake --build .

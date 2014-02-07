@@ -14,9 +14,11 @@ test_rt_alloc(const void * allocContext, cns_Index size, cns_Error* err)
     {
         *rv = size;
         ((struct TestRTAllocContext *)allocContext)->bytesAllocated += size;
+        *err = CNS_OK;
+        return rv + 1;
     }
-    *err = (rv ? CNS_OK : CNS_ERR_NOMEM);
-    return rv + 1;
+    *err = CNS_ERR_NOMEM;
+    return 0;
 }
 
 void
@@ -45,14 +47,17 @@ test_rt_realloc(const void * allocContext, void* ptr, cns_Index size, cns_Error*
         return test_rt_alloc(allocContext, size, err);
 
     cns_Index* realptr = (cns_Index*) ptr - 1;
+    cns_Index prevsize = *realptr;
     cns_Index* rv = realloc(realptr, sizeof(cns_Index) + size);
     if (rv)
     {
-        ((struct TestRTAllocContext *)allocContext)->bytesAllocated -= *realptr;
+        ((struct TestRTAllocContext *)allocContext)->bytesAllocated -= prevsize;
         ((struct TestRTAllocContext *)allocContext)->bytesAllocated += size;
         *(cns_Index*)rv = size;
+        *err = CNS_OK;
+        return rv + 1;
     }
-    *err = (rv ? CNS_OK : CNS_ERR_NOMEM);
-    return rv + 1;
+    *err = CNS_ERR_NOMEM;
+    return 0;
 }
 
