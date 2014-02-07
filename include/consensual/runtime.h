@@ -19,6 +19,14 @@ typedef uint8_t cns_Error;
 typedef intptr_t cns_Index;
 
 
+/**
+ * Values other than 0 or 1 are invalid.
+ */
+typedef uint8_t cns_Bool;
+#define CNS_NO 0
+#define CNS_YES 1
+
+
 typedef struct _cns_Runtime cns_Runtime;
 
 

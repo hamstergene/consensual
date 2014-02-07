@@ -30,6 +30,9 @@ int main()
     Suite* bytes_suite(void);
     srunner_add_suite(sr, bytes_suite());
 
+    Suite* storage_suite(void);
+    srunner_add_suite(sr, storage_suite());
+
     srunner_run_all(sr, CK_NORMAL);
     numFailedTests = srunner_ntests_failed(sr);
     srunner_free(sr);

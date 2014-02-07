@@ -74,7 +74,21 @@ cns_bytes_ptr(cns_Runtime* cns, cns_Bytes* bytes)
     return impl + 1;
 }
 
-#include <stdio.h>
+cns_Bool
+cns_bytes_equal(cns_Runtime* cns, cns_Bytes* lhs, cns_Bytes* rhs)
+{
+    if (lhs == rhs)
+        return CNS_YES;
+
+    if (!lhs ^ !rhs)
+        return CNS_NO;
+
+    cns_Index length = cns_bytes_length(cns, lhs);
+    if (length != cns_bytes_length(cns, rhs))
+        return CNS_NO;
+
+    return (0 == memcmp(cns_bytes_ptr(cns, lhs), cns_bytes_ptr(cns, rhs), length));
+}
 
 void
 cns_bytes_free(cns_Runtime* cns, cns_Bytes* bytes)

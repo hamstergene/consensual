@@ -43,6 +43,23 @@ START_TEST(test_bytes)
 
     ck_assert_int_eq( noleaksNumber, test_rt_allocContext.bytesAllocated );
 
+    // equality
+    ck_assert_int_eq(CNS_YES, cns_bytes_equal(cns, 0, 0));
+    a = cns_bytes_new(cns, "a", 1);
+    b = cns_bytes_new(cns, "a", 1);
+    c = cns_bytes_new(cns, "aa", 2);
+    ck_assert_int_eq(CNS_NO, cns_bytes_equal(cns, a, 0));
+    ck_assert_int_eq(CNS_NO, cns_bytes_equal(cns, 0, a));
+    ck_assert_int_eq(CNS_YES, cns_bytes_equal(cns, a, a));
+    ck_assert_int_eq(CNS_YES, cns_bytes_equal(cns, a, b));
+    ck_assert_int_eq(CNS_NO, cns_bytes_equal(cns, a, c));
+
+    cns_bytes_free(cns, a);
+    cns_bytes_free(cns, b);
+    cns_bytes_free(cns, c);
+
+    ck_assert_int_eq( noleaksNumber, test_rt_allocContext.bytesAllocated );
+
     cns_shutdown(cns);
 }
 END_TEST
